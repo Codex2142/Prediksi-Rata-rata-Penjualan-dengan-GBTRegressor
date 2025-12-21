@@ -11,18 +11,32 @@ Perkembangan teknologi Big Data dan Artificial Intelligence memungkinkan analisi
 4. Mengevaluasi dan mengoptimalkan performa model prediksi secara sistematis.
 
 ## Dataset
-Dataset yang digunakan adalah M5 Forecasting – Starter Data Exploration, yang berisi data penjualan harian produk ritel dari beberapa toko dan wilayah. Dataset ini mencakup informasi seperti:
+Dataset yang digunakan adalah M5 Forecasting – Starter Data Exploration, yang terdiri dari:
 
-1. Penjualan harian per produk dan toko
+- Penjualan harian per produk dan toko
 
-2. Kalender (hari, minggu, event, dan hari libur)
+- Kalender (hari, minggu, event, dan hari libur)
 
-3. Harga jual produk dari waktu ke waktu
+- Harga jual produk dari waktu ke waktu
 
-Dataset bersifat time series dan memiliki volume data yang besar, sehingga sesuai untuk pendekatan Big Data.
+Karakteristik dataset:
+
+- Bertipe time series
+
+- Multilevel (item, store, state)
+
+- Volume data besar
+
+- Cocok untuk pendekatan Big Data dan distributed machine learning
 
 ## Pednakatan
-data processing dan machine learning dilakukan menggunakan PySpark
+Data Processing & Feature Engineering: PySpark
+
+Modeling: XGBoost berbasis Spark (SparkXGBRegressor)
+
+Evaluasi: Time-based evaluation (RMSE, MAE, MAPE)
+
+Optimasi: Hyperparameter tuning berbasis time series split
 
 ## Struktur Folder:
 menjelaskan tentang susunan folder yag dikerjakan mahasiswa
@@ -41,12 +55,13 @@ UAS/
 │       ├── features.parquet
 │       ├── train.parquet
 │       ├── test.parquet
-│       └── predictions.parquet
+│       ├── predictions.parquet
+│       └── metrics.csv
 │
 ├── notebook/
 │   ├── 0_PREPARATION.ipynb
 │   ├── 1_DATASET.ipynb
-│   ├── 2_EDA.ipynb   (opsional / Tableau)
+│   ├── 2_EDA.ipynb        (opsional / Tableau)
 │   ├── 3_TRANSFORM_FEATURE.ipynb
 │   ├── 4_SPLIT.ipynb
 │   ├── 5_MODELING.ipynb
@@ -56,20 +71,22 @@ UAS/
 ├── xgboost/
 │   ├── requirements.txt
 │   └── spark_xgb_env.md
+
 ```
 
 ## Tabel Ringkasan
 
-| Tahap           | Notebook | Input       | Output      |
-| --------------- | -------- | ----------- | ----------- |
-| Download        | 0        | google drive      | raw CSV     |
-| Dataset         | 1        | raw CSV     | base_table  |
-| EDA             | 2        | base_table  | Tableau     |
-| **Feature Eng** | **3**    | base_table  | features    |
-| Split           | 4        | features    | train/test  |
-| Modeling        | 5        | train       | prediction |
-| Evaluasi        | 6        | predictions | metric     |
-| Tuning          | 7        | train       | best param |
+| Tahap       | Notebook | Input          | Output         |
+| ----------- | -------- | -------------- | -------------- |
+| Preparation | 0        | Kaggle Dataset | Raw CSV        |
+| Dataset     | 1        | Raw CSV        | Base Table     |
+| EDA         | 2        | Base Table     | Dashboard      |
+| Feature Eng | 3        | Base Table     | Features       |
+| Split       | 4        | Features       | Train/Test     |
+| Modeling    | 5        | Train/Test     | Predictions    |
+| Evaluation  | 6        | Predictions    | Metrics        |
+| Tuning      | 7        | Train          | Best Parameter |
+
 
 
 ## Tahap Pengerjaan
@@ -193,27 +210,24 @@ Data sudah numerik & siap ML
 ### ```4_SPLIT.ipynb```
 Tujuan
 
-Membagi data time-series dengan benar
+Membagi data berdasarkan waktu (time-based split).
 
 Input
-```sh
-dataset/cooked/features.parquet
-```
+
+- features.parquet
 
 Proses
 
-- Time-based split:
+- Train: sebelum waktu T
 
-    - Train: sebelum T
+- Test: setelah waktu T
 
-    - Test: setelah T
-
-- No random split
+- Tanpa random split
 
 Output
 ```sh
-dataset/cooked/train.parquet
-dataset/cooked/test.parquet
+train.parquet
+test.parquet
 ```
 
 ### ```5_MODELING.ipynb```
@@ -239,7 +253,15 @@ Output
 ```sh
 dataset/cooked/predictions.parquet
 ```
+skema prediksi:
+```sh
+date
+item_id
+store_id
+y_true
+y_pred
 
+```
 ### ```6_EVALUATION.ipynb```
 Tujuan
 
@@ -261,10 +283,9 @@ Proses
 - Analisis per store / item
 
 Output
-
-- Metric (print / csv)
-
-- Insight performa model
+```sh
+Metric (print / csv)
+```
 
 ### ```7_TUNING.ipynb```
 Tujuan
@@ -282,13 +303,13 @@ Proses
 
 - Parameter:
 
-    - max_depth
+    - ```max_depth```
 
-    - eta
+    - ```eta```
 
-    - subsample
+    - ```subsample```
 
-    - colsample_bytree
+    - ```colsample_bytree```
 
 - Cross validation berbasis waktu
 
