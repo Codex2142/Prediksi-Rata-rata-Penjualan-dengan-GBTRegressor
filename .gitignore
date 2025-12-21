@@ -1,4 +1,4 @@
-dataset/raw/*
-dataset/cooked/*
+dataset/
 *.csv
 *.zip
+xgboost/
